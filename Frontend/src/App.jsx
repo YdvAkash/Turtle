@@ -8,6 +8,8 @@ import About from './pages/About'
  // Fix: make sure to import Explore correctly
 import Navbar from './components/Navbar'
 import ExploreBooks from './pages/ExploreBooks'
+import SignUp from './pages/SignUp';
+
 export default function App() {
   return (
     <UserProvider>
@@ -18,6 +20,8 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/explore" element={<ExploreBooks />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/SignUp" element={<SignUp />} />
+
       </Routes>
 
       <button
