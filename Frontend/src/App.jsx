@@ -9,6 +9,7 @@ import About from './pages/About'
 import Navbar from './components/Navbar'
 import ExploreBooks from './pages/ExploreBooks'
 import SignUp from './pages/SignUp';
+import Watchlist from './pages/Watchlist';
 
 export default function App() {
   return (
@@ -21,7 +22,7 @@ export default function App() {
         <Route path="/explore" element={<ExploreBooks />} />
         <Route path="/login" element={<Login />} />
         <Route path="/SignUp" element={<SignUp />} />
-
+        <Route path="/watchlist" element={<Watchlist />} />
       </Routes>
 
       <button

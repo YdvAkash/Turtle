@@ -80,7 +80,7 @@ function Login() {
           >
             Login
           </button>
-          <div className="text-right py-2"><p>Don't have Account? <Link to="/SignUp" className="text-blue-700">Login</Link></p></div>
+          <div className="text-right py-2"><p>Don't have Account? <Link to="/SignUp" className="text-blue-700">SignUp</Link></p></div>
 
         </form>
       </div>

@@ -23,12 +23,65 @@ mongoose.connect(MONGO_URI, {
 
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
-    password: { type: String, required: true }
+    password: { type: String, required: true },
+    books: { type: Array, required: false },
+    Rate: { type: Number, required: false },
 });
 
 const User = mongoose.model('User', userSchema);
 
 // Routes
+app.post('/api/addbook', async (req, res) => {
+    try {
+        const { username, books } = req.body;
+
+        // Find the user by username
+        const user = await User.findOne({ username });
+
+        // If user not found, return an error message
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Add the book to the user's list of books (or any other relevant data)
+        user.books.push(books);
+
+        // Save the updated user data
+        await user.save();
+
+        // Return success response
+        res.status(200).json({ message: 'Book added successfully', user });
+    } catch (error) {
+        // Handle any errors
+        res.status(500).json({ message: 'Internal server error', error });
+    }
+});
+
+app.get('/api/getbooks', async (req, res) => {
+    try {
+        const { username } = req.query; // Use `req.query` for GET requests
+
+        // Validate username
+        if (!username) {
+            return res.status(400).json({ error: 'Username is required' });
+        }
+
+        // Find the user by username
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Return the user's books
+        return res.status(200).json({ books: user.books || [] }); // Assuming `books` is an array field in User schema
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 
 // Register Route
 app.post('/api/register', async (req, res) => {
@@ -69,6 +122,8 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'Error logging in', error });
     }
 });
+
+
 
 // Protected Route
 app.get('/api/protected', (req, res) => {
