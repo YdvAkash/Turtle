@@ -7,7 +7,7 @@ import Login from './pages/Login' // Fix: make sure to import Login correctly
 import About from './pages/About'
  // Fix: make sure to import Explore correctly
 import Navbar from './components/Navbar'
-import ExploreBooks from './pages/ExploreBooks'
+import OtherWatchlist from './pages/OtherWatchlist'
 import SignUp from './pages/SignUp';
 import Watchlist from './pages/Watchlist';
 
@@ -19,7 +19,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/explore" element={<ExploreBooks />} />
+        <Route path="/OtherWatchlist" element={<OtherWatchlist/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/SignUp" element={<SignUp />} />
         <Route path="/watchlist" element={<Watchlist />} />

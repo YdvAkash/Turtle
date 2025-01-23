@@ -22,7 +22,7 @@ export default function Navbar() {
           <Link to="/About" className="text-gray-600 hover:text-gray-950 ">
             About
           </Link>
-          <Link to="/Explore" className="text-gray-600 hover:text-gray-950 ">
+          <Link to="/OtherWatchlist" className="text-gray-600 hover:text-gray-950 ">
             Explore
           </Link>
           <Link to="/Watchlist" className="text-gray-600 hover:text-gray-950 ">
