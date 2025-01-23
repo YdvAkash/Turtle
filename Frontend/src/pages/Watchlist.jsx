@@ -1,82 +1,90 @@
 import React, { useEffect, useState } from "react";
 import { useUser } from "../components/UserContext";
+import { useLocation } from "react-router-dom"; // For URL parameters (optional)
 
 function Watchlist() {
   const { user } = useUser();
-  const username = user?.username || "";
-  const [bookTitles, setBookTitles] = useState([]);
+  const [username, setUsername] = useState(user?.username || "");
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchUsername, setSearchUsername] = useState("");
+  const [error, setError] = useState("");
+
+  // Optionally: Read the username from URL query parameter (if you allow URL-based search)
+  const location = useLocation();
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const queriedUsername = queryParams.get("username");
+    if (queriedUsername) {
+      setUsername(queriedUsername); // Update username to the one from the URL query
+    }
+  }, [location]);
+
+  const handleSearchChange = (event) => {
+    setSearchUsername(event.target.value);
+  };
+
+  const handleSearchSubmit = () => {
+    if (searchUsername.trim()) {
+      setUsername(searchUsername);
+    }
+  };
 
   useEffect(() => {
-    const fetchBookTitles = async () => {
+    const fetchBooks = async () => {
       if (!username) {
-        return alert("You must be logged in to view your watchlist.");
+        setError("Username is required to view a watchlist.");
+        return;
       }
 
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/getbooks?username=${encodeURIComponent(username)}`);
+        const response = await fetch(`/api/watchlist?username=${encodeURIComponent(username)}`);
         const data = await response.json();
 
         if (response.ok) {
-          setBookTitles(data.books || []);
+          setBooks(data.watchlist.books || []);
         } else {
-          alert(data.error || "Failed to fetch books.");
+          setError(data.error || "Failed to fetch books.");
         }
       } catch (error) {
-        console.error("Error fetching watchlist titles:", error);
-        alert("An error occurred. Please try again later.");
+        console.error("Error fetching watchlist books:", error);
+        setError("An error occurred. Please try again later.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchBookTitles();
+    fetchBooks();
   }, [username]);
-
-  useEffect(() => {
-    const fetchBookDetails = async () => {
-      const detailedBooks = [];
-      for (const title of bookTitles) {
-        try {
-          const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(title)}`);
-          const data = await response.json();
-          if (data.items && data.items.length > 0) {
-            detailedBooks.push({
-              title: title,
-              authors: data.items[0].volumeInfo.authors || ["Unknown Author"],
-              image: data.items[0].volumeInfo.imageLinks?.thumbnail || "/placeholder-image.png",
-            });
-          } else {
-            detailedBooks.push({
-              title: title,
-              authors: ["Unknown Author"],
-              image: "/placeholder-image.png",
-            });
-          }
-        } catch (error) {
-          console.error(`Error fetching details for book: ${title}`, error);
-          detailedBooks.push({
-            title: title,
-            authors: ["Unknown Author"],
-            image: "/placeholder-image.png",
-          });
-        }
-      }
-      setBooks(detailedBooks);
-    };
-
-    if (bookTitles.length > 0) {
-      fetchBookDetails();
-    }
-  }, [bookTitles]);
 
   return (
     <div>
-      <h1 className="text-center text-2xl font-bold my-5">Your Watchlist</h1>
+      <h1 className="text-center text-2xl font-bold my-5">
+        {username ? `${username}'s Watchlist` : "Your Watchlist"}
+      </h1>
+
+      {/* Search Input for Other User's Watchlist */}
+      <div className="flex justify-center mb-4">
+        <input
+          type="text"
+          value={searchUsername}
+          onChange={handleSearchChange}
+          placeholder="Enter username to search"
+          className="px-4 py-2 border rounded"
+        />
+        <button
+          onClick={handleSearchSubmit}
+          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Search
+        </button>
+      </div>
+
       {isLoading ? (
-        <p className="text-center">Loading your watchlist...</p>
+        <p className="text-center">Loading watchlist...</p>
+      ) : error ? (
+        <p className="text-center text-red-500">{error}</p>
       ) : books.length > 0 ? (
         <div className="book-list flex gap-6 flex-wrap justify-center py-7 border-2 border-green-950 mx-5 my-7">
           {books.map((book, index) => (
@@ -87,7 +95,7 @@ function Watchlist() {
               <div className="group-hover:scale-110 w-full h-60 bg-blue-400 duration-500">
                 <img
                   className="w-full h-60"
-                  src={book.image} // Display book cover
+                  src={book.imageURL || "/placeholder-image.png"} // Use the book's imageURL
                   alt={book.title || "Book cover"}
                 />
               </div>
@@ -95,14 +103,14 @@ function Watchlist() {
                 <div className="absolute -z-10 left-0 w-64 h-full opacity-0 duration-500 group-hover:opacity-50 group-hover:bg-blue-900"></div>
                 <span className="text-xl font-bold">{book.title}</span>
                 <p className="group-hover:opacity-100 w-56 duration-500 opacity-0">
-                  {book.authors.join(", ")}
+                  {book.author}
                 </p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-center">No books in your watchlist.</p>
+        <p className="text-center">No books in the watchlist.</p>
       )}
     </div>
   );
