@@ -1,0 +1,18 @@
+From node:20-alpine 
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["npm", "run", "start"]
+
+
+
+# 1. docker build -t turtle-backend:dev .
+# 2. docker run -p 5000:5000 turtle-backend:dev   OR    docker run -p 5000:5000 --restart unless-stopped turtle-backend:dev
